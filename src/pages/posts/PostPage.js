@@ -11,6 +11,7 @@ import axios from "axios";
 import Post from "./Post";
 import CommentCreateForm from "../comments/CommentCreateForm";
 import { useCurrentUser } from "../../contexts/CurrentUserContext";
+import Comments from "../comments/Comments";
 
 function PostPage() {
     const { id } = useParams();
@@ -28,6 +29,7 @@ function PostPage() {
                     axios.get(`/comments/?post=${id}`),
                 ])
                 setPost({ results: [post] })
+                setComments(comments)
                 console.log(post)
             } catch (err) {
                 console.log(err)
@@ -53,6 +55,15 @@ function PostPage() {
                     ) : comments.results.length ? (
                         "Comments"
                     ) : null}
+                    {comments.results.length ? (
+                        comments.results.map(comment => (
+                            <Comments key={comment.id} {...comment} setPost={setPost} setComment={setComments} />
+                        ))
+                    ) : currentUser ? (
+                        <span>No comments yet, be the first to comment</span>
+                    ) : (
+                        <span>No comments yet</span>
+                    )}
                 </Container>
             </Col>
             <Col lg={4} className="d-none d-lg-block p-0 p-lg-2">
