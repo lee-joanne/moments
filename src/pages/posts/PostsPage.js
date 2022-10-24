@@ -5,16 +5,17 @@ import Col from "react-bootstrap/Col";
 import Row from "react-bootstrap/Row";
 import Container from "react-bootstrap/Container";
 
+import Post from "./Post";
+import Asset from "../../components/Asset";
+
 import appStyles from "../../App.module.css";
 import styles from "../../styles/PostsPage.module.css";
-import { useLocation } from "react-router-dom/cjs/react-router-dom.min";
+import { useLocation } from "react-router";
 import { axiosReq } from "../../api/axiosDefaults";
-import Post from "./Post";
 
-import NoResults from "../../assets/no-results.png"
-import Asset from "../../components/Asset";
+import NoResults from "../../assets/no-results.png";
 import InfiniteScroll from "react-infinite-scroll-component";
-import { fetchMoreData } from "../../utils";
+import { fetchMoreData } from "../../utils/utils";
 import PopularProfiles from "../profiles/PopularProfiles";
 
 function PostsPage({ message, filter = "" }) {
@@ -23,49 +24,57 @@ function PostsPage({ message, filter = "" }) {
     const { pathname } = useLocation();
 
     const [query, setQuery] = useState("");
-    ;
+
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const { data } = await axiosReq.get(`/post/?${filter}search=${query}`)
-                setPosts(data)
-                setHasLoaded(true)
+                const { data } = await axiosReq.get(`/post/?${filter}search=${query}`);
+                setPosts(data);
+                setHasLoaded(true);
             } catch (err) {
-                console.log(err)
+                console.log(err);
             }
-        }
+        };
+
         setHasLoaded(false);
         const timer = setTimeout(() => {
             fetchPosts();
-        }, 1000)
+        }, 1000);
+
         return () => {
-            clearTimeout(timer)
-        }
-    }, [filter, query, pathname])
+            clearTimeout(timer);
+        };
+    }, [filter, query, pathname]);
 
     return (
         <Row className="h-100">
             <Col className="py-2 p-0 p-lg-2" lg={8}>
                 <PopularProfiles mobile />
-                <i className={`fas fa-searach ${styles.SearchIcon}`} />
-                <Form className={styles.SearchBar}
-                    onSubmit={(event) => event.preventDefault()}>
-                    <Form.Control value={query} onChange={(event) => setQuery(event.target.value)} type="text" className="mr-sm-2" placeholder="Search posts" />
+                <i className={`fas fa-search ${styles.SearchIcon}`} />
+                <Form
+                    className={styles.SearchBar}
+                    onSubmit={(event) => event.preventDefault()}
+                >
+                    <Form.Control
+                        value={query}
+                        onChange={(event) => setQuery(event.target.value)}
+                        type="text"
+                        className="mr-sm-2"
+                        placeholder="Search posts"
+                    />
                 </Form>
 
                 {hasLoaded ? (
                     <>
                         {posts.results.length ? (
                             <InfiniteScroll
-                                children={
-                                    posts.results.map((post) => (
-                                        <Post key={post.id} {...post} setPosts={setPosts} />
-                                    ))
-                                }
+                                children={posts.results.map((post) => (
+                                    <Post key={post.id} {...post} setPosts={setPosts} />
+                                ))}
                                 dataLength={posts.results.length}
                                 loader={<Asset spinner />}
                                 hasMore={!!posts.next}
-                                next={() => { fetchMoreData(posts, setPosts) }}
+                                next={() => fetchMoreData(posts, setPosts)}
                             />
                         ) : (
                             <Container className={appStyles.Content}>
